@@ -1,7 +1,7 @@
 "use client";
 
-import { useCategories } from "@/lib/firestore/categories/read";
-import { deleteCategory } from "@/lib/firestore/categories/write";
+import { useCollections } from "@/lib/firestore/collections/read";
+import { deleteCollection } from "@/lib/firestore/collections/write";
 import { Button, CircularProgress } from "@nextui-org/react";
 import { Edit2, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -9,7 +9,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 
 const ListView = () => {
-  const { data: categories, error, isLoading } = useCategories();
+  const { data: collections, error, isLoading } = useCollections();
 
   if (isLoading) {
     return (
@@ -23,7 +23,7 @@ const ListView = () => {
   }
   return (
     <div className=" rounded-xl flex-1 flex flex-col gap-3">
-      <h1 className="font-semibold">Categories</h1>
+      <h1 className="font-semibold">Collections</h1>
       <table className="border-separate border-spacing-y-2">
         <thead>
           <tr>
@@ -32,7 +32,10 @@ const ListView = () => {
             </th>
             <th className="border-y font-semibold bg-white px-3 py-2">Image</th>
             <th className="border-y font-semibold bg-white px-3 py-2 text-left">
-              Name
+              Title
+            </th>
+            <th className="border-y font-semibold bg-white px-3 py-2 text-left">
+              Products
             </th>
             <th className="border-y font-semibold bg-white px-3 py-2 rounded-r-lg">
               Actions
@@ -40,7 +43,7 @@ const ListView = () => {
           </tr>
         </thead>
         <tbody>
-          {categories?.map((item, index) => {
+          {collections?.map((item, index) => {
             return <Row index={index} item={item} key={item?.id} />;
           })}
         </tbody>
@@ -57,7 +60,7 @@ function Row({ item, index }) {
     if (!confirm("Are you sure?")) return;
     setIsDeleting(true);
     try {
-      await deleteCategory({ id: item?.id, public_id: item?.public_id });
+      await deleteCollection({ id: item?.id, public_id: item?.public_id });
       toast.success("Successfully Deleted");
     } catch (error) {
       toast.error(error?.message);
@@ -67,7 +70,7 @@ function Row({ item, index }) {
   };
 
   const handleUpdate = () => {
-    router.push(`/admin/categories?id=${item?.id}`);
+    router.push(`/admin/collections?id=${item?.id}`);
   };
   return (
     <tr key={item.id || index}>
@@ -79,11 +82,12 @@ function Row({ item, index }) {
           <img
             className="h-10 w-10 object-cover"
             src={item?.imageUrl || "Missing Image"}
-            alt={item?.name || "Image"}
+            alt={item?.title || "Image"}
           />
         </div>
       </td>
-      <td className="border-y bg-white px-3 py-2">{item?.name}</td>
+      <td className="border-y bg-white px-3 py-2">{item?.title}</td>
+      <td className="border-y bg-white px-3 py-2">{item?.products?.length}</td>
       <td className="border-y bg-white px-3 py-2 rounded-r-lg">
         <div className="flex gap-2 items-center justify-center ">
           <Button

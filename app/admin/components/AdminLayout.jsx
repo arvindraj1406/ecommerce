@@ -59,12 +59,12 @@ const AdminLayout = ({ children }) => {
       </div>
 
       {/* Main content area */}
-      <section className="flex-1 flex flex-col">
+      <section className="flex-1 flex flex-col overflow-hidden min-h-screen">
         {/* Header */}
         <Header toggleSidebar={toggleSidebar} />{" "}
         {/* Header component, passes `toggleSidebar` to allow the header to control the sidebar. */}
         {/* Content */}
-        <section className="flex-1 bg-[#eff3f4]">{children}</section>
+        <section className="pt-16 flex-1 bg-[#eff3f4]">{children}</section>
       </section>
     </main>
   );

@@ -1,4 +1,4 @@
-import { db } from "@/lib/firebase";
+import { db, storage } from "@/lib/firebase";
 import {
   collection,
   deleteDoc,
@@ -7,17 +7,17 @@ import {
   Timestamp,
   updateDoc,
 } from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import toast from "react-hot-toast";
 
-export const createNewCategory = async ({ data, image }) => {
+const createNewBrand = async ({ data, image }) => {
   if (!image) {
     throw new Error("Image is Required");
   }
   if (!data?.name) {
     throw new Error("Name is Required");
   }
-  if (!data?.slug) {
-    throw new Error("Slug is Required");
-  }
+
   const newId = doc(collection(db, `ids`)).id; // create random id
 
   // Upload the image to Cloudinary and entries store in firebase
@@ -46,8 +46,8 @@ export const createNewCategory = async ({ data, image }) => {
   //await uploadBytes(imageRef, image);
   //const imageUrl = await getDownloadURL(imageRef);
 
-  // Save the category data to Firestore
-  await setDoc(doc(db, `categories/${newId}`), {
+  // Save the brand data to Firestore
+  await setDoc(doc(db, `brands/${newId}`), {
     ...data,
     id: newId,
     imageUrl: imageUrl,
@@ -56,12 +56,9 @@ export const createNewCategory = async ({ data, image }) => {
   });
 };
 
-export const updateCategory = async ({ data, image }) => {
+export const updateBrand = async ({ data, image }) => {
   if (!data?.name) {
     throw new Error("Name is Required");
-  }
-  if (!data?.slug) {
-    throw new Error("Slug is Required");
   }
   if (!data?.id) {
     throw new Error("Id is Required");
@@ -129,8 +126,8 @@ export const updateCategory = async ({ data, image }) => {
     publicId = uploadResponse.public_id; // New Cloudinary public_id
   }
 
-  // Step 3: Update the category data in Firestore
-  await updateDoc(doc(db, `categories/${id}`), {
+  // Step 3: Update the brand data in Firestore
+  await updateDoc(doc(db, `brands/${id}`), {
     ...data,
     imageUrl: imageUrl, // Update with new image URL
     public_id: publicId, // Update with new public_id
@@ -138,7 +135,7 @@ export const updateCategory = async ({ data, image }) => {
   });
 };
 
-export const deleteCategory = async ({ id, public_id }) => {
+export const deleteBrand = async ({ id, public_id }) => {
   // Check if the 'id' is provided
   if (!id) {
     throw new Error("ID is required");
@@ -176,11 +173,11 @@ export const deleteCategory = async ({ id, public_id }) => {
 
   // Delete the document from Firestore
   try {
-    await deleteDoc(doc(db, `categories/${id}`));
+    await deleteDoc(doc(db, `brands/${id}`));
   } catch (error) {
     console.error("Failed to delete Firestore document:", error.message);
     throw error;
   }
 };
 
-export default createNewCategory;
+export default createNewBrand;

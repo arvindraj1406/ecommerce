@@ -17,9 +17,15 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+
+// Conditionally initialize Analytics
 export const analytics = isSupported().then((yes) =>
   yes ? getAnalytics(app) : null
 );
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
+
+//getApps(): Checks if any Firebase apps are already initialized.
+//initializeApp(firebaseConfig): Initializes Firebase with the provided configuration if no app is initialized.
+//getApp(): Retrieves the already initialized Firebase app.

@@ -1,7 +1,7 @@
 "use client";
 
-import { useCategories } from "@/lib/firestore/categories/read";
-import { deleteCategory } from "@/lib/firestore/categories/write";
+import { useBrands } from "@/lib/firestore/brands/read";
+import { deleteBrand } from "@/lib/firestore/brands/write";
 import { Button, CircularProgress } from "@nextui-org/react";
 import { Edit2, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -9,7 +9,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 
 const ListView = () => {
-  const { data: categories, error, isLoading } = useCategories();
+  const { data: brands, error, isLoading } = useBrands();
 
   if (isLoading) {
     return (
@@ -23,7 +23,7 @@ const ListView = () => {
   }
   return (
     <div className=" rounded-xl flex-1 flex flex-col gap-3">
-      <h1 className="font-semibold">Categories</h1>
+      <h1 className="font-semibold">Brands</h1>
       <table className="border-separate border-spacing-y-2">
         <thead>
           <tr>
@@ -40,7 +40,7 @@ const ListView = () => {
           </tr>
         </thead>
         <tbody>
-          {categories?.map((item, index) => {
+          {brands?.map((item, index) => {
             return <Row index={index} item={item} key={item?.id} />;
           })}
         </tbody>
@@ -57,7 +57,7 @@ function Row({ item, index }) {
     if (!confirm("Are you sure?")) return;
     setIsDeleting(true);
     try {
-      await deleteCategory({ id: item?.id, public_id: item?.public_id });
+      await deleteBrand({ id: item?.id, public_id: item?.public_id });
       toast.success("Successfully Deleted");
     } catch (error) {
       toast.error(error?.message);
@@ -67,7 +67,7 @@ function Row({ item, index }) {
   };
 
   const handleUpdate = () => {
-    router.push(`/admin/categories?id=${item?.id}`);
+    router.push(`/admin/brands?id=${item?.id}`);
   };
   return (
     <tr key={item.id || index}>
@@ -77,7 +77,7 @@ function Row({ item, index }) {
       <td className="border-y bg-white px-3 py-2">
         <div className="flex justify-center">
           <img
-            className="h-10 w-10 object-cover"
+            className="h-6 object-cover"
             src={item?.imageUrl || "Missing Image"}
             alt={item?.name || "Image"}
           />

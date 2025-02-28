@@ -1,4 +1,4 @@
-import { db } from "@/lib/firebase";
+import { db, storage } from "@/lib/firebase";
 import {
   collection,
   deleteDoc,
@@ -7,18 +7,21 @@ import {
   Timestamp,
   updateDoc,
 } from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import toast from "react-hot-toast";
 
-export const createNewCategory = async ({ data, image }) => {
+const createNewAdmin = async ({ data, image }) => {
   if (!image) {
     throw new Error("Image is Required");
   }
   if (!data?.name) {
     throw new Error("Name is Required");
   }
-  if (!data?.slug) {
-    throw new Error("Slug is Required");
+  if (!data?.email) {
+    throw new Error("Email is Required");
   }
-  const newId = doc(collection(db, `ids`)).id; // create random id
+
+  const newId = data?.email; // create random id
 
   // Upload the image to Cloudinary and entries store in firebase
   const formData = new FormData();
@@ -46,8 +49,8 @@ export const createNewCategory = async ({ data, image }) => {
   //await uploadBytes(imageRef, image);
   //const imageUrl = await getDownloadURL(imageRef);
 
-  // Save the category data to Firestore
-  await setDoc(doc(db, `categories/${newId}`), {
+  // Save the admin data to Firestore
+  await setDoc(doc(db, `admins/${newId}`), {
     ...data,
     id: newId,
     imageUrl: imageUrl,
@@ -56,15 +59,15 @@ export const createNewCategory = async ({ data, image }) => {
   });
 };
 
-export const updateCategory = async ({ data, image }) => {
+export const updateAdmin = async ({ data, image }) => {
   if (!data?.name) {
     throw new Error("Name is Required");
   }
-  if (!data?.slug) {
-    throw new Error("Slug is Required");
-  }
   if (!data?.id) {
     throw new Error("Id is Required");
+  }
+  if (!data?.email) {
+    throw new Error("Email is Required");
   }
 
   const id = data?.id;
@@ -129,16 +132,32 @@ export const updateCategory = async ({ data, image }) => {
     publicId = uploadResponse.public_id; // New Cloudinary public_id
   }
 
-  // Step 3: Update the category data in Firestore
-  await updateDoc(doc(db, `categories/${id}`), {
-    ...data,
-    imageUrl: imageUrl, // Update with new image URL
-    public_id: publicId, // Update with new public_id
-    TimestampUpdate: Timestamp.now(),
-  });
+  // Step 3: Update the admin data in Firestore
+  if (id === data?.email) {
+    // If the current document ID matches the email in the new data, update the existing document
+    await updateDoc(doc(db, `admins/${id}`), {
+      ...data, // Spread existing data to retain other fields
+      imageUrl: imageUrl, // Update with new image URL
+      public_id: publicId, // Update with new public_id
+      TimestampUpdate: Timestamp.now(), // Record the update timestamp
+    });
+  } else {
+    // If the email has changed, update the document under the new email ID
+    const newId = data?.email; // Get the new email as the document ID
+    await deleteDoc(doc(db, `admins/${id}`)); // Delete the old document (the one with the previous ID)
+
+    // Create or update a new document with the new ID (email)
+    await updateDoc(doc(db, `admins/${newId}`), {
+      ...data,
+      id: newId,
+      imageUrl: imageUrl, // Update with new image URL
+      public_id: publicId, // Update with new public_id
+      TimestampUpdate: Timestamp.now(),
+    });
+  }
 };
 
-export const deleteCategory = async ({ id, public_id }) => {
+export const deleteAdmin = async ({ id, public_id }) => {
   // Check if the 'id' is provided
   if (!id) {
     throw new Error("ID is required");
@@ -176,11 +195,11 @@ export const deleteCategory = async ({ id, public_id }) => {
 
   // Delete the document from Firestore
   try {
-    await deleteDoc(doc(db, `categories/${id}`));
+    await deleteDoc(doc(db, `admins/${id}`));
   } catch (error) {
     console.error("Failed to delete Firestore document:", error.message);
     throw error;
   }
 };
 
-export default createNewCategory;
+export default createNewAdmin;

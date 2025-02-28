@@ -8,15 +8,15 @@ import {
   updateDoc,
 } from "firebase/firestore";
 
-export const createNewCategory = async ({ data, image }) => {
+export const createNewCollections = async ({ data, image }) => {
   if (!image) {
     throw new Error("Image is Required");
   }
-  if (!data?.name) {
+  if (!data?.title) {
     throw new Error("Name is Required");
   }
-  if (!data?.slug) {
-    throw new Error("Slug is Required");
+  if (!data?.products || data?.products?.length === 0) {
+    throw new Error("Products is Required");
   }
   const newId = doc(collection(db, `ids`)).id; // create random id
 
@@ -47,7 +47,7 @@ export const createNewCategory = async ({ data, image }) => {
   //const imageUrl = await getDownloadURL(imageRef);
 
   // Save the category data to Firestore
-  await setDoc(doc(db, `categories/${newId}`), {
+  await setDoc(doc(db, `collections/${newId}`), {
     ...data,
     id: newId,
     imageUrl: imageUrl,
@@ -56,12 +56,12 @@ export const createNewCategory = async ({ data, image }) => {
   });
 };
 
-export const updateCategory = async ({ data, image }) => {
-  if (!data?.name) {
+export const updateCollection = async ({ data, image }) => {
+  if (!data?.title) {
     throw new Error("Name is Required");
   }
-  if (!data?.slug) {
-    throw new Error("Slug is Required");
+  if (!data?.products || data?.products?.length === 0) {
+    throw new Error("Products is Required");
   }
   if (!data?.id) {
     throw new Error("Id is Required");
@@ -130,7 +130,7 @@ export const updateCategory = async ({ data, image }) => {
   }
 
   // Step 3: Update the category data in Firestore
-  await updateDoc(doc(db, `categories/${id}`), {
+  await updateDoc(doc(db, `collections/${id}`), {
     ...data,
     imageUrl: imageUrl, // Update with new image URL
     public_id: publicId, // Update with new public_id
@@ -138,7 +138,7 @@ export const updateCategory = async ({ data, image }) => {
   });
 };
 
-export const deleteCategory = async ({ id, public_id }) => {
+export const deleteCollection = async ({ id, public_id }) => {
   // Check if the 'id' is provided
   if (!id) {
     throw new Error("ID is required");
@@ -176,11 +176,11 @@ export const deleteCategory = async ({ id, public_id }) => {
 
   // Delete the document from Firestore
   try {
-    await deleteDoc(doc(db, `categories/${id}`));
+    await deleteDoc(doc(db, `collections/${id}`));
   } catch (error) {
     console.error("Failed to delete Firestore document:", error.message);
     throw error;
   }
 };
 
-export default createNewCategory;
+export default createNewCollections;

@@ -88,7 +88,7 @@ const SignInWithGoogleComponent = () => {
     setIsLoading(false); // Reset loading state after the login attempt (success or failure)
   };
   return (
-    // Button component with dynamic properties based on the loading state
+    // NextUI Button component with dynamic properties based on the loading state
     <Button
       isLoading={isLoading} //Shows a loading spinner if true
       isDisabled={isLoading} // Disables the button to prevent multiple clicks during loading
