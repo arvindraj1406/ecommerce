@@ -4,6 +4,11 @@ import { useEffect, useState, useRef } from "react";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import { useAdmin } from "@/lib/firestore/admins/read";
+import { Button, CircularProgress } from "@nextui-org/react";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 const AdminLayout = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,6 +19,9 @@ const AdminLayout = ({ children }) => {
 
   const sidebarRef = useRef(null);
   // A reference to the sidebar element, used for detecting clicks outside of the sidebar.
+
+  const { user } = useAuth();
+  const { data: admin, error, isLoading } = useAdmin({ email: user?.email });
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen); // Inverts the current state (open becomes closed, and vice versa).
@@ -40,6 +48,38 @@ const AdminLayout = ({ children }) => {
       // Cleans up the event listener when the component unmounts to avoid memory leaks
     };
   }, []); // Empty dependency array ensures this effect runs only once, when the component mounts.
+  if (isLoading) {
+    return (
+      <div className="h-screen w-screen flex justify-center item-center">
+        <CircularProgress />
+      </div>
+    );
+  }
+  if (!admin) {
+    return (
+      <div className="h-screen w-full text-center flex flex-col justify-center item-center">
+        <h1 className="text-xl">You are not Admin!</h1>
+        <h2 className="text-gray-600 text-sm">{user?.email}</h2>
+        <div className=" text-center w-full">
+          <Button
+            className=""
+            onClick={async () => {
+              await signOut(auth);
+            }}
+          >
+            Logout
+          </Button>
+        </div>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="h-screen w-screen flex justify-center item-center">
+        <h1 className="text-red-500">{error}</h1>
+      </div>
+    );
+  }
 
   return (
     <main className="relative flex min-h-screen">

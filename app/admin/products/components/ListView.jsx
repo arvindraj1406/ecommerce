@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
 const ListView = () => {
-  const [pageLimit, setPageLimit] = useState(2);
+  const [pageLimit, setPageLimit] = useState(3);
   const [lastSnapDocList, setLastSnapDocList] = useState([]);
 
   useEffect(() => {
@@ -21,6 +21,7 @@ const ListView = () => {
     error,
     isLoading,
     lastSnapDoc,
+    hasNextPage,
   } = useProducts({
     pageLimit: pageLimit,
     lastSnapDoc:
@@ -61,7 +62,7 @@ const ListView = () => {
 
   return (
     <div className=" py-2 rounded-xl flex-1 flex flex-col gap-3 overflow-x-auto w-full">
-      <table className="border-separate border-spacing-y-2">
+      <table className="border-separate border-spacing-y-2 text-[14px]">
         <thead>
           <tr>
             <th className="border-y font-semibold bg-white px-3 py-2 rounded-l-lg">
@@ -111,7 +112,7 @@ const ListView = () => {
         </Button>
         <select
           value={pageLimit}
-          onChange={(e) => setPageLimit(e.target.value)}
+          onChange={(e) => setPageLimit(Number(e.target.value))}
           className="px-5 rounded-xl"
           name="perpage"
           id="perpage"
@@ -122,7 +123,7 @@ const ListView = () => {
         </select>
 
         <Button
-          isDisabled={isLoading || !lastSnapDoc || products?.length < pageLimit}
+          isDisabled={isLoading || !hasNextPage}
           onClick={handleNextPage}
           size="sm"
           variant="bordered"
@@ -170,6 +171,11 @@ function Row({ item, index }) {
       </td>
       <td className="border-y bg-white px-3 py-2 whitespace-nowrap">
         {item?.title}
+        {item?.isFeatured && (
+          <span className="bg-gradient-to-tr from-blue-500 to-indigo-400 text-white text-[11px] rounded-full px-3 py-1 ml-2">
+            Featured
+          </span>
+        )}
       </td>
       <td className="border-y bg-white px-3 py-2 whitespace-nowrap">
         {item?.saleprice < item.price && (

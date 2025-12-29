@@ -17,12 +17,12 @@ const Form = () => {
 
   const router = useRouter();
 
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
+  const searchParams = useSearchParams(); // Getting the URL search parameters (e.g., ?id=123)
+  const id = searchParams.get("id"); // Extracting the 'id' value from the URL query parameters
 
   const fetchData = async () => {
     try {
-      const res = await getCategory({ id: id });
+      const res = await getCategory({ id: id }); // Calling an API/helper function to fetch the category by ID
       if (!res) {
         toast.error("Category not found!");
       } else {
@@ -52,7 +52,7 @@ const Form = () => {
   const handleCreate = async () => {
     setIsLoading(true);
     try {
-      await createNewCategory({ data: data, image: image });
+      await createNewCategory({ data: data, image: image }); //create category and store in firebase
       toast.success("Category added successfully!!"); // Show success toast
       setData(null); // empty data after create
       setImage(null); //empty image after create

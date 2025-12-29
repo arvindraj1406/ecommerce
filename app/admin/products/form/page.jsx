@@ -61,11 +61,11 @@ export default function page() {
         featureImage: featureImage,
         imageList: imageList,
       });
-      setData(null);
-      setFeatureImage(null);
-      setImageList([]);
+      setData(null); //Clear all form fields after successful submission
+      setFeatureImage(null); //Clear the main image preview
+      setImageList([]); //Clear any uploaded additional images
       toast.success("Product is successfully created!");
-      router.push(`/admin/products`);
+      router.push(`/admin/products`); //Redirect to product list
     } catch (error) {
       console.log(error?.message);
       toast.error(error?.message);

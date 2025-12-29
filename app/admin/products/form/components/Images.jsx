@@ -10,21 +10,22 @@ export default function Images({
       <h1 className="font-semibold">Images</h1>
       {/* Feature Image Show at the time of edit */}
       <div className="flex flex-col gap-1">
-        {data?.featuredImageURL && !featureImage && (
-          <div className="flex">
-            <img
-              className="h-20 w-20 object-cover rounded-lg"
-              src={data?.featuredImageURL} // Show a preview URL for the uploaded image
-              alt="Featured Image"
-            />
-          </div>
-        )}
+        {data?.featuredImageURL &&
+          !featureImage && ( //shows the old image &&  if the user selects a new image (featureImage becomes true)
+            <div className="flex">
+              <img
+                className="h-20 w-20 object-cover rounded-lg"
+                src={data?.featuredImageURL} // Show a preview URL that already exists in database
+                alt="Featured Image"
+              />
+            </div>
+          )}
         {/* Feature Image Upload */}
         {featureImage && (
           <div className="flex">
             <img
               className="h-20 w-20 object-cover rounded-lg"
-              src={URL.createObjectURL(featureImage)} // Create a preview URL for the uploaded image
+              src={URL.createObjectURL(featureImage)} // Create a preview URL for the new uploaded image
               alt="Featured Image"
             />
           </div>

@@ -4,7 +4,7 @@ import { useBrands } from "@/lib/firestore/brands/read";
 import { useCategories } from "@/lib/firestore/categories/read";
 
 export default function BasicDetails({ data, handleData }) {
-  const { data: brands } = useBrands();
+  const { data: brands } = useBrands(); //destructuring with renaming
   const { data: categories } = useCategories();
   return (
     <section className="flex flex-col flex-1 gap-3 bg-white rounded-xl p-4 border">
@@ -77,7 +77,7 @@ export default function BasicDetails({ data, handleData }) {
 
       <div className="flex flex-col gap-1">
         <label htmlFor="product-category" className="text-gray-500 text-sm">
-          Brand <span className="text-red-500">*</span>
+          Category <span className="text-red-500">*</span>
         </label>
         <select
           type="text"
@@ -112,7 +112,7 @@ export default function BasicDetails({ data, handleData }) {
           name="product-stock"
           value={data?.stock ?? ""}
           onChange={(e) => {
-            handleData("stock", e.target.value);
+            handleData("stock", e.target.valueAsNumber);
           }}
           className="border text-sm px-4 py-2 rounded-lg w-full outline-none"
           required
@@ -130,7 +130,7 @@ export default function BasicDetails({ data, handleData }) {
           name="product-price"
           value={data?.price ?? ""}
           onChange={(e) => {
-            handleData("price", e.target.value);
+            handleData("price", e.target.valueAsNumber);
           }}
           className="border text-sm px-4 py-2 rounded-lg w-full outline-none"
           required
@@ -148,11 +148,32 @@ export default function BasicDetails({ data, handleData }) {
           name="product-sale-price"
           value={data?.saleprice ?? ""}
           onChange={(e) => {
-            handleData("saleprice", e.target.value);
+            handleData("saleprice", e.target.valueAsNumber);
           }}
           className="border text-sm px-4 py-2 rounded-lg w-full outline-none"
           required
         />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label htmlFor="product-is-featured" className="text-gray-500 text-sm">
+          Is Featured Product <span className="text-red-500">*</span>
+        </label>
+        <select
+          type="number"
+          placeholder="Enter Sale Price"
+          id="product-is-featured"
+          name="product-is-featured"
+          value={data?.isFeatured ? "yes" : "no"}
+          onChange={(e) => {
+            handleData("isFeatured", e.target.value === "yes" ? true : false);
+          }}
+          className="border text-sm px-4 py-2 rounded-lg w-full outline-none"
+          required
+        >
+          <option value={"no"}>No</option>
+          <option value={"yes"}>Yes</option>
+        </select>
       </div>
     </section>
   );

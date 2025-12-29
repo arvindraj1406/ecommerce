@@ -1,7 +1,6 @@
 "use client";
 
-// Import necessary modules from Firebase and SWR
-import { db } from "@/lib/firebase"; // Firebase database instance
+import { db } from "@/lib/firebase";
 import {
   collection,
   doc,
@@ -9,97 +8,73 @@ import {
   onSnapshot,
   query,
   startAfter,
-} from "firebase/firestore"; // Firestore collection and real-time listener
-import useSWRSubscription from "swr/subscription"; // SWR's subscription hook for handling real-time data
+} from "firebase/firestore";
+import useSWRSubscription from "swr/subscription";
 
-// Define a custom hook to fetch categories from Firestore
-export function useProducts({ pageLimit, lastSnapDoc }) {
-  // Use SWRSubscription to listen for changes in the "collections" collection
+export function useProducts({ pageLimit = 10, lastSnapDoc }) {
   const { data, error } = useSWRSubscription(
-    ["products", pageLimit, lastSnapDoc], // Key for the SWR cache (can include collection path and params)
+    ["products", pageLimit, lastSnapDoc],
     ([path, pageLimit, lastSnapDoc], { next }) => {
-      // Extract the Firestore collection path from the key
-
-      const ref = collection(db, path); // Get a reference to the "collection"
-      let q = query(ref, limit(pageLimit ?? 10)); // set page timit for next and previous button
+      const ref = collection(db, path);
+      let q = query(ref, limit(pageLimit + 1)); // fetch one extra item
 
       if (lastSnapDoc) {
-        q = query(q, startAfter(lastSnapDoc));
+        q = query(ref, startAfter(lastSnapDoc), limit(pageLimit + 1));
       }
 
-      // Set up a real-time listener to Firestore
       const unsub = onSnapshot(
         q,
-        ref, // Firestore reference
         (snapshot) => {
-          // Callback function when data changes
+          const docs = snapshot.docs;
+          const hasNextPage = docs.length > pageLimit;
 
-          // Pass the updated data to SWR's `next` function
-          next(
-            null, // No error
-            {
-              list:
-                snapshot.docs.length === 0 // If the collection is empty
-                  ? null // Return null if there are no documents
-                  : snapshot.docs.map((snap) => snap.data()), // Map over the snapshot and extract document data
+          const products = hasNextPage ? docs.slice(0, pageLimit) : docs;
 
-              lastSnapDoc:
-                snapshot.docs.length === 0 // If the collection is empty
-                  ? null // Return null if there are no documents
-                  : snapshot.docs[snapshot.docs.length - 1], // Map over the snapshot and extract document data
-            }
-          );
+          next(null, {
+            list: products.map((doc) => ({ id: doc.id, ...doc.data() })),
+            lastSnapDoc:
+              products.length > 0 ? products[products.length - 1] : null,
+            hasNextPage,
+          });
         },
-        (err) => next(err, null) // Pass errors to SWR's `next` function
+        (err) => next(err, null)
       );
 
-      // Return a cleanup function to unsubscribe the listener when the component unmounts
       return () => unsub();
     }
   );
 
-  // Return the data, error, and loading state to the component
   return {
     data: data?.list,
     lastSnapDoc: data?.lastSnapDoc,
+    hasNextPage: data?.hasNextPage ?? false,
     error: error?.message,
     isLoading: data === undefined,
   };
 }
 
-// Define a custom hook to fetch categories from Firestore
 export function useProduct({ productId }) {
-  // Use SWRSubscription to listen for changes in the "collections" collection
   const { data, error } = useSWRSubscription(
-    ["products", productId], // Key for the SWR cache (can include collection path and params)
+    ["products", productId],
     ([path, productId], { next }) => {
-      // Extract the Firestore collection path from the key
+      const ref = doc(db, `${path}/${productId}`);
 
-      const ref = doc(db, `${path}/${productId}`); // Get a reference to the "collection"
-
-      // Set up a real-time listener to Firestore
       const unsub = onSnapshot(
-        ref, // Firestore reference
+        ref,
         (snapshot) => {
-          // Callback function when data changes
-
-          // Pass the updated data to SWR's `next` function
-          next(
-            null, // No error
-            snapshot.data()
-          );
+          next(null, snapshot.data());
         },
-        (err) => next(err, null) // Pass errors to SWR's `next` function
+        (err) => next(err, null)
       );
 
-      // Return a cleanup function to unsubscribe the listener when the component unmounts
       return () => unsub();
     }
   );
 
-  // Return the data, error, and loading state to the component
   return {
     data: data,
+    lastSnapDoc: data?.lastSnapDoc,
+    hasNextPage: data?.hasNextPage ?? false,
     error: error?.message,
     isLoading: data === undefined,
   };

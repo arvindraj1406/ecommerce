@@ -80,7 +80,7 @@ function Row({ item, index }) {
       <td className="border-y bg-white px-3 py-2">
         <div className="flex justify-center">
           <img
-            className="h-10 w-10 object-cover"
+            className="h-6 object-cover"
             src={item?.imageUrl || "Missing Image"}
             alt={item?.title || "Image"}
           />

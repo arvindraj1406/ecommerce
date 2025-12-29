@@ -184,8 +184,8 @@ export const updateProduct = async ({ data, featureImage, imageList }) => {
 // Function to extract public_id from Cloudinary URL
 const getPublicId = (url) => {
   if (!url) return null;
-  const parts = url.split("/");
-  return parts[parts.length - 1].split(".")[0]; // Extracts public_id
+  const parts = url.split("/"); //Splits the URL into an array by /
+  return parts[parts.length - 1].split(".")[0]; // Grabs the last part
 };
 
 // Function to delete an image from Cloudinary
